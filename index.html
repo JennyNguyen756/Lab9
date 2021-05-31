@@ -28,14 +28,14 @@
 <body>
   <fieldset>
     <legend>Error Calculator</legend>
-    <input type="number" name="first-num" id="first-num" />
+    <input type="text" name="first-num" id="first-num" />
     <select name="operator" id="operator">
       <option>+</option>
       <option>-</option>
       <option>*</option>
       <option>/</option>
     </select>
-    <input type="number" name="second-num" id="second-num" />
+    <input type="text" name="second-num" id="second-num" />
     <button id="calculate">Calculate</button>
     <br />
     <output></output>
@@ -54,19 +54,135 @@
     <button>Console Trace</button>
     <button>Trigger a Global Error</button>
   </section>
+ 
+<!-- TrackJS Script -->
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "97ecaeef7ad044a8ae165ef5a2f9b02b"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+                          
+
 
   <script>
+
+    //Step 4 - Throw and Custom Errors
+    class ConversionError extends Error{
+      constructor(message){
+        super(message);
+        this.name = "ConversionError";
+      }
+    }
+
+    class CustomError extends Error{
+      constructor(message){
+        super(message);
+        this.name = "CustomError";
+      }
+    }
+    
+
+
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
+      //Step 3 - Trying Try/Catch
+      try {
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      }
+      catch (err) {
+        if ( isNaN(firstNum) || isNaN(secondNum) )  {
+          throw new ConversionError("Input of type NaN received, input must be of type number");
+        }
+        console.error(err.message);
+
+      } finally {
+        console.log("Finally")
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+
+    //Step 2 - Adding Buttons for Console Testing
+
+    //Console Log Demo Button
+    errorBtns[0].addEventListener('click', () => {
+      console.log("This is console.log");
+    });
+
+    //Console Error Demo Button
+        errorBtns[1].addEventListener('click', () => {
+      console.error("This is console.error");
+    });
+
+    //Console Table Button
+    errorBtns[6].addEventListener('click', () => {
+      console.table(["this", "is", "console", "table"]);
+    });
+
+    //Console Dir Button
+    errorBtns[2].addEventListener('click', () => {
+      console.dir(errorBtns[0]);
+    });
+
+    //Console dirxml Button
+    errorBtns[3].addEventListener('click', () => {
+      console.dirxml(document.head);
+    });
+
+    //Console Group Start Button
+    errorBtns[4].addEventListener('click', () => {
+      console.group("Group Start:");
+    });
+
+    //Console Group End Button
+    errorBtns[5].addEventListener('click', () => {
+      console.groupEnd();
+    });
+
+    //Start Timer Button
+    errorBtns[7].addEventListener('click', () => {
+      console.log("Time starts");
+      console.time("Timer");
+    });   
+
+    //End Timer Button
+    errorBtns[8].addEventListener('click', () => {
+      console.log("Timer ends");
+      console.timeEnd("Timer");
+    });   
+
+    //Console Trace Button
+    errorBtns[9].addEventListener('click', () => {
+      const testMethod = () => { anotherMethod(); };
+      const anotherMethod = () => { deep(); };
+      const deep = () => { deepest(); };
+      const deepest = () => {console.trace(); };
+      testMethod();
+    });
+
+    //Trigger a Global Error Button
+    errorBtns[10].addEventListener('click', () => {
+      throw new CustomError("Throw new Global Error");
+    }); 
+
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log(message);
+      TrackJS.track(message, source, lineno, colno, error);
+      return true;
+    }
+
+ 
   </script>
+
+
+
 </body>
 </html>
